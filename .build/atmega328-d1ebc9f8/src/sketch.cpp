@@ -1,3 +1,12 @@
+#include <Arduino.h>
+void setup();
+void loop();
+void update_candles();
+void fade_candles();
+void print_lums();
+float lum_map(float lv);
+float frand();
+#line 1 "src/sketch.ino"
 const int candle_pins_len = 8;
 int candle_pins[8] = {6, 12, 4, 5, 11, 9, 10, 7};
 float candle_lums[8] = {0, 0, 0, 0, 0, 0, 0, 0};
