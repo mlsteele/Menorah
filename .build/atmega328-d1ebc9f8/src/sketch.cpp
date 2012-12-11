@@ -5,8 +5,12 @@ void draw_candles();
 void fade_candles();
 void print_lums();
 float lum_map(float lv);
+float wiggle(float n, float var);
 float frand();
 #line 1 "src/sketch.ino"
+// #include "RunPeriodically.h"
+#include "SoftPWM.h"
+
 const int candle_pins_len = 8;
 int candle_pins[8] = {6, 12, 4, 5, 11, 9, 10, 7};
 float candle_lums[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -15,6 +19,8 @@ float candle_lums[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 void setup() {
   Serial.begin(9600);
+
+  SoftPWMBegin();
 
   for (int i = 0; i < candle_pins_len; i++) {
     pinMode(candle_pins[i], OUTPUT);
@@ -27,15 +33,19 @@ void setup() {
 }
 
 void loop() {
+  // Serial.println("loop");
+  // delay(1);
+  // runPeriodically(draw_candles, 50);
   draw_candles();
   fade_candles();
-  delay(10);
   // time_count_candles();
 }
 
 void draw_candles() {
   for (int i = 0; i < candle_pins_len; i++) {
-    digitalWrite(candle_pins[i], lum_map(frand()) < candle_lums[i]);
+    // digitalWrite(candle_pins[i], lum_map(frand()) < candle_lums[i]);
+
+    SoftPWMSet(candle_pins[i], wiggle(lum_map(candle_lums[i]), 0.05) * 100);
 
     // analogWrite(candle_pins[i], candle_lums[i] * 128);
 
@@ -56,7 +66,7 @@ void draw_candles() {
 
 void fade_candles() {
   for (int i = 0; i < candle_pins_len; i++) {
-    candle_lums[i] -= 0.0001;
+    candle_lums[i] -= 0.0000001;
     candle_lums[i] = fmax(0, candle_lums[i]);
   }
 }
@@ -70,7 +80,13 @@ void print_lums() {
 
 float lum_map(float lv) {
   // return lv * lv * lv;
-  return lv;
+  return sqrt(lv);
+}
+
+float wiggle(float n, float var) {
+  n += (((random() % 2) * 2) - 2) * var;
+  n = max(0, min(n, 1));
+  return n;
 }
 
 float frand() {
